@@ -1,0 +1,25 @@
+{
+  "name": "siap-backend",
+  "version": "1.0.0",
+  "description": "Sistem Informasi Antrian Pasien API",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Irfan Tua Sitio",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.1",
+    "joi": "^17.13.3",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.0",
+    "@types/uuid": "^10.0.0",
+    "prisma": "^5.22.0"
+  }
+}
