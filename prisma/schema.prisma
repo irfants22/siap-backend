@@ -12,3 +12,75 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id       String  @id @default(cuid())
+  name     String  @db.VarChar(100)
+  email    String  @db.VarChar(100)
+  password String  @db.VarChar(100)
+  phone    String  @db.VarChar(20)
+  nik      String  @db.VarChar(20)
+  gender   Gender
+  address  String? @db.Text
+  image    String? @db.Text
+  is_admin Boolean @default(false)
+  token    String? @db.VarChar(100)
+
+  queues Queue[]
+
+  @@map("users")
+}
+
+model Queue {
+  id     String  @id @default(cuid())
+  queue  String  @db.VarChar(100)
+  status Status  @default(MENUNGGU)
+  viewed Boolean @default(false)
+
+  user_id   String
+  user      User   @relation(fields: [user_id], references: [id])
+  doctor_id String
+  doctor    Doctor @relation(fields: [doctor_id], references: [id])
+
+  @@map("queues")
+}
+
+model Doctor {
+  id           String  @id @default(cuid())
+  name         String  @db.VarChar(100)
+  email        String  @db.VarChar(100)
+  phone        String  @db.VarChar(20)
+  address      String? @db.Text
+  image        String? @db.Text
+  gender       Gender
+  schedule     Json?
+  social_media Json?
+  description  String? @db.Text
+
+  polyclinic_id String
+  polyclinic    Polyclinic @relation(fields: [polyclinic_id], references: [id])
+  queues        Queue[]
+
+  @@map("doctors")
+}
+
+model Polyclinic {
+  id    String  @id @default(cuid())
+  name  String  @db.VarChar(100)
+  image String? @db.Text
+
+  doctors Doctor[]
+
+  @@map("polyclinics")
+}
+
+enum Status {
+  MENUNGGU
+  DIPERIKSA
+  SELESAI
+}
+
+enum Gender {
+  LAKI_LAKI
+  PEREMPUAN
+}
