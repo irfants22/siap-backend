@@ -14,17 +14,19 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  name     String  @db.VarChar(100)
-  email    String  @db.VarChar(100)
-  password String  @db.VarChar(100)
-  phone    String  @db.VarChar(20)
-  nik      String  @db.VarChar(20)
-  gender   Gender
-  address  String? @db.Text
-  image    String? @db.Text
-  is_admin Boolean @default(false)
-  token    String? @db.VarChar(100)
+  id         String   @id @default(cuid())
+  name       String   @db.VarChar(100)
+  email      String   @unique @db.VarChar(100)
+  password   String   @db.VarChar(100)
+  phone      String   @db.VarChar(20)
+  nik        String   @unique @db.VarChar(20)
+  gender     Gender
+  address    String?  @db.Text
+  image      String?  @db.Text
+  is_admin   Boolean  @default(false)
+  token      String?  @db.VarChar(100)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   queues Queue[]
 
@@ -32,10 +34,12 @@ model User {
 }
 
 model Queue {
-  id     String  @id @default(cuid())
-  queue  String  @db.VarChar(100)
-  status Status  @default(MENUNGGU)
-  viewed Boolean @default(false)
+  id         String   @id @default(cuid())
+  queue      String   @db.VarChar(100)
+  status     Status   @default(MENUNGGU)
+  viewed     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   user_id   String
   user      User   @relation(fields: [user_id], references: [id])
@@ -46,16 +50,18 @@ model Queue {
 }
 
 model Doctor {
-  id           String  @id @default(cuid())
-  name         String  @db.VarChar(100)
-  email        String  @db.VarChar(100)
-  phone        String  @db.VarChar(20)
-  address      String? @db.Text
-  image        String? @db.Text
+  id           String   @id @default(cuid())
+  name         String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(100)
+  phone        String   @db.VarChar(20)
+  address      String?  @db.Text
+  image        String?  @db.Text
   gender       Gender
   schedule     Json?
   social_media Json?
-  description  String? @db.Text
+  description  String?  @db.Text
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   polyclinic_id String
   polyclinic    Polyclinic @relation(fields: [polyclinic_id], references: [id])
@@ -65,9 +71,11 @@ model Doctor {
 }
 
 model Polyclinic {
-  id    String  @id @default(cuid())
-  name  String  @db.VarChar(100)
-  image String? @db.Text
+  id         String   @id @default(cuid())
+  name       String   @db.VarChar(100)
+  image      String?  @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   doctors Doctor[]
 
