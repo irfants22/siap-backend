@@ -1,8 +1,9 @@
 import { prismaClient } from "../application/db.js";
 import { ResponseError } from "../error/response-error.js";
-import { registerUserValidation } from "../validation/user-validation.js";
+import { loginUserValidation, registerUserValidation } from "../validation/user-validation.js";
 import { validate } from "../validation/validation.js";
 import bcrypt from "bcrypt";
+import { v4 as uuid } from "uuid";
 
 const register = async (req) => {
   // validasi skema dari body request
@@ -39,8 +40,55 @@ const register = async (req) => {
   });
 };
 
-export default {
-  register,
+const login = async (req) => {
+  const loginRequest = validate(loginUserValidation, req);
+
+  const user = await prismaClient.user.findUnique({
+    where: {
+      email: loginRequest.email,
+    },
+    select: {
+      email: true,
+      password: true,
+    },
+  });
+
+  if(!user) {
+    throw new ResponseError(401, "Email atau Password salah");
+  }
+
+  const isPasswordValid = await bcrypt.compare(
+    loginRequest.password,
+    user.password,
+  );
+
+  if (!isPasswordValid) {
+    throw new ResponseError(401, "Email atau password salah");
+  }
+
+  const token = uuid().toString();
+
+  return prismaClient.user.update({
+    data: {
+      token,
+    },
+    where: {
+      email: user.email,
+    },
+    select: {
+      name: true,
+      email: true,
+      phone: true,
+      nik: true,
+      gender: true,
+      address: true,
+      token: true,
+      is_admin: true,
+    },
+  });
 };
 
-const login = async () => {};
+export default {
+  register,
+  login
+};

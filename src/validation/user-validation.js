@@ -10,6 +10,14 @@ const registerUserValidation = Joi.object({
   address: Joi.string().optional(),
 });
 
-export { registerUserValidation };
-
 // skema login
+const loginUserValidation = Joi.object({
+  email: Joi.string().max(100).email().required(),
+  password: Joi.string().max(100).required(),
+});
+
+export { 
+  registerUserValidation,
+  loginUserValidation 
+};
+

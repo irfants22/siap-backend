@@ -11,6 +11,18 @@ const register = async (req, res, next) => {
   }
 };
 
-export default { register };
+const login = async (req, res, next) => {
+  try {
+    const result = await userService.login(req.body);
+    res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  };
+};
 
-const login = async () => {};
+export default { 
+  register,
+  login 
+};
