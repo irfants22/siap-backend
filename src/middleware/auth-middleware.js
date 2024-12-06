@@ -1,6 +1,6 @@
 import { prismaClient } from "../application/db.js";
 
-const isAuthorized = async (req, res, next) => {
+export const isAuthorized = async (req, res, next) => {
   const token = req.get("Authorization");
 
   if (!token) {
@@ -13,7 +13,7 @@ const isAuthorized = async (req, res, next) => {
   } else {
     const user = await prismaClient.user.findFirst({
       where: {
-        token: token,
+        token,
       },
     });
 
@@ -31,6 +31,4 @@ const isAuthorized = async (req, res, next) => {
   }
 };
 
-export default {
-  isAuthorized,
-};
+
