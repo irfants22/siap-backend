@@ -31,4 +31,17 @@ export const isAuthorized = async (req, res, next) => {
   }
 };
 
+export const isAdmin = async (req, res, next) => {
+  const { is_admin } = req.user;
 
+  if (!is_admin) {
+    res
+      .status(403)
+      .json({
+        errors: "Anda tidak memiliki akses",
+      })
+      .end();
+  } else {
+    next();
+  }
+};

@@ -97,9 +97,11 @@ const getUser = async (email) => {
       image: true,
     },
   });
+
   if (!user) {
-    throw new ResponseError(404, "User is not found");
+    throw new ResponseError(404, "Pengguna tidak ditemukan");
   }
+
   return user;
 };
 
@@ -113,7 +115,7 @@ const logoutUser = async (email) => {
   });
 
   if (!user) {
-    throw new ResponseError(404, "User is not found")
+    throw new ResponseError(404, "Pengguna tidak ditemukan");
   }
 
   return prismaClient.user.update({
@@ -127,11 +129,27 @@ const logoutUser = async (email) => {
       email: true,
     },
   });
-}
+};
+
+const getAllUser = async () => {
+  const user = await prismaClient.user.findMany({
+    select: {
+      name: true,
+      email: true,
+      phone: true,
+      nik: true,
+      gender: true,
+      address: true,
+    },
+  });
+
+  return user;
+};
 
 export default {
   register,
   login,
   getUser,
   logoutUser,
+  getAllUser,
 };

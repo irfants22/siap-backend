@@ -19,7 +19,7 @@ const login = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-  };
+  }
 };
 
 const getUser = async (req, res, next) => {
@@ -38,18 +38,29 @@ const logoutUser = async (req, res, next) => {
   try {
     const email = req.user.email;
     await userService.logoutUser(email);
-
     res.status(200).json({
       status: "OK",
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
-export default { 
+const getAllUser = async (_req, res, next) => {
+  try {
+    const result = await userService.getAllUser();
+    res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default {
   register,
   login,
-  getUser, 
+  getUser,
   logoutUser,
+  getAllUser,
 };
