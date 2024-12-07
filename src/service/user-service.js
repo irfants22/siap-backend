@@ -134,6 +134,7 @@ const logoutUser = async (email) => {
 const getAllUser = async () => {
   const user = await prismaClient.user.findMany({
     select: {
+      id: true,
       name: true,
       email: true,
       phone: true,
@@ -146,10 +147,29 @@ const getAllUser = async () => {
   return user;
 };
 
+const deleteUser = async (userId) => {
+  const user = await prismaClient.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new ResponseError(404, "Pengguna tidak ditemukan");
+  }
+
+  return prismaClient.user.delete({
+    where: {
+      id: userId,
+    },
+  });
+};
+
 export default {
   register,
   login,
   getUser,
   logoutUser,
   getAllUser,
+  deleteUser,
 };

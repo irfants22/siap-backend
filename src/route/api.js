@@ -10,6 +10,7 @@ authorizedRouter.get("/api/users/current", userController.getUser);
 authorizedRouter.delete("/api/users/logout", userController.logoutUser);
 
 // User API (admin)
-authorizedRouter.get("/api/users", isAdmin, userController.getAllUser);
+authorizedRouter.get("/api/users",  userController.getAllUser);
+authorizedRouter.delete("/api/users/:userId", userController.deleteUser);
 
 export { authorizedRouter };

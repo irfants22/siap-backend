@@ -24,6 +24,8 @@ const login = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
   try {
+    console.log("USER", req.user);
+
     const email = req.user.email;
     const result = await userService.getUser(email);
     res.status(200).json({
@@ -57,10 +59,23 @@ const getAllUser = async (_req, res, next) => {
   }
 };
 
+const deleteUser = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    await userService.deleteUser(userId);
+    res.status(200).json({
+      status: "OK",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   register,
   login,
   getUser,
   logoutUser,
   getAllUser,
+  deleteUser,
 };
