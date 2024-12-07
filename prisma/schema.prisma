@@ -19,7 +19,7 @@ model User {
   email      String   @unique @db.VarChar(100)
   password   String   @db.VarChar(100)
   phone      String   @db.VarChar(20)
-  nik        String   @unique @db.VarChar(20)
+  nik        String   @unique @db.VarChar(16)
   gender     Gender
   address    String?  @db.Text
   image      String?  @db.Text
@@ -86,6 +86,7 @@ enum Status {
   MENUNGGU
   DIPERIKSA
   SELESAI
+  TERLEWAT
 }
 
 enum Gender {
