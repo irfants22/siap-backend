@@ -11,6 +11,19 @@ const getAllDoctor = async (_req, res, next) => {
   }
 };
 
+const getDetailDoctor = async (req, res, next) => {
+  try {
+    const doctorId = req.params.doctorId;
+    const result = await doctorService.getDetailDoctor(doctorId);
+    res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getAllDoctor,
+  getDetailDoctor,
 };
