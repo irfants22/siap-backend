@@ -125,25 +125,11 @@ const logoutUser = async (email) => {
     data: {
       token: null,
     },
-    select: {
-      email: true,
-    },
   });
 };
 
 const getAllUser = async () => {
-  const user = await prismaClient.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      nik: true,
-      gender: true,
-      address: true,
-    },
-  });
-
+  const user = await prismaClient.user.findMany();
   return user;
 };
 
