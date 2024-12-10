@@ -21,6 +21,7 @@ authorizedRouter.delete("/api/polyclinics/:polyclinicId", polyclinicController.d
 
 // Doctor API
 authorizedRouter.get("/api/doctors", doctorController.getAllDoctor);
-authorizedRouter.get("/api/doctors/:doctorId", doctorController.getDetailDoctor)
+authorizedRouter.get("/api/doctors/:doctorId", doctorController.getDetailDoctor);
+authorizedRouter.delete("/api/doctors/:doctorId", doctorController.deleteDoctor);
 
 export { authorizedRouter };

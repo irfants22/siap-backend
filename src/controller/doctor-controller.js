@@ -1,11 +1,14 @@
 import doctorService from "../service/doctor-service.js";
 
-const getAllDoctor = async (_req, res, next) => {
+const getAllDoctor = async (req, res, next) => {
   try {
-    const result = await doctorService.getAllDoctor();
-    res.status(200).json({
-      data: result,
-    });
+    const request = {
+      query: req.query.query,
+      page: req.query.page,
+      limit: req.query.limit,
+    };
+    const result = await doctorService.getAllDoctor(request);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -23,7 +26,20 @@ const getDetailDoctor = async (req, res, next) => {
   }
 };
 
+const deleteDoctor = async (req, res, next) => {
+  try {
+    const doctorId = req.params.doctorId;
+    await doctorService.deleteDoctor(doctorId);
+    res.status(200).json({
+      status: "OK",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getAllDoctor,
   getDetailDoctor,
+  deleteDoctor,
 };
