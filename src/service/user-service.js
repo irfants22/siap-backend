@@ -1,6 +1,7 @@
 import { prismaClient } from "../application/db.js";
 import { ResponseError } from "../error/response-error.js";
 import {
+  getAllUserValidation,
   getUserValidation,
   loginUserValidation,
   registerUserValidation,
@@ -128,9 +129,47 @@ const logoutUser = async (email) => {
   });
 };
 
-const getAllUser = async () => {
-  const user = await prismaClient.user.findMany();
-  return user;
+const getAllUser = async (request) => {
+  request = validate(getAllUserValidation, request);
+
+  const pageNumber = request.page || 1;
+  const limitNumber = request.limit || 10;
+  const offset = (pageNumber - 1) * limitNumber;
+  const query = request.query;
+
+  const filters = query
+    ? {
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { email: { contains: query, mode: "insensitive" } },
+          { nik: { contains: query, mode: "insensitive" } },
+          { phone: { contains: query, mode: "insensitive" } },
+        ],
+      }
+    : undefined;
+
+  const users = await prismaClient.user.findMany({
+    where: filters,
+    skip: offset,
+    take: limitNumber,
+    orderBy: { name: "asc" },
+    include: {
+      queues: true,
+    },
+  });
+
+  const totalUsers = await prismaClient.user.count({
+    where: filters,
+  });
+
+  return {
+    data: users,
+    pagination: {
+      page: pageNumber,
+      total_page: Math.ceil(totalUsers / limitNumber),
+      total_users: totalUsers,
+    },
+  };
 };
 
 const deleteUser = async (userId) => {

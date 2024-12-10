@@ -46,12 +46,15 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
-const getAllUser = async (_req, res, next) => {
+const getAllUser = async (req, res, next) => {
   try {
-    const result = await userService.getAllUser();
-    res.status(200).json({
-      data: result,
-    });
+    const request = {
+      query: req.query.query,
+      page: req.query.page,
+      limit: req.query.limit,
+    };
+    const result = await userService.getAllUser(request);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

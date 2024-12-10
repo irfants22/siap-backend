@@ -41,7 +41,7 @@ const getAllDoctor = async (request) => {
     pagination: {
       page: pageNumber,
       total_page: Math.ceil(totalDoctors / limitNumber),
-      total_doctor: totalDoctors,
+      total_doctors: totalDoctors,
     },
   };
 };
