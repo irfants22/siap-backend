@@ -3,6 +3,7 @@ import { isAdmin, isAuthorized } from "../middleware/auth-middleware.js";
 import userController from "../controller/user-controller.js";
 import polyclinicController from "../controller/polyclinic-controller.js";
 import doctorController from "../controller/doctor-controller.js";
+import queueController from "../controller/queue-controller.js";
 
 const authorizedRouter = Router();
 authorizedRouter.use(isAuthorized);
@@ -23,5 +24,8 @@ authorizedRouter.delete("/api/polyclinics/:polyclinicId", polyclinicController.d
 authorizedRouter.get("/api/doctors", doctorController.getAllDoctor);
 authorizedRouter.get("/api/doctors/:doctorId", doctorController.getDetailDoctor);
 authorizedRouter.delete("/api/doctors/:doctorId", doctorController.deleteDoctor);
+
+// Queue API
+authorizedRouter.get("/api/queues", queueController.getAllQueue);
 
 export { authorizedRouter };
