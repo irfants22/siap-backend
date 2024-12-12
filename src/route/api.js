@@ -27,5 +27,8 @@ authorizedRouter.delete("/api/doctors/:doctorId", doctorController.deleteDoctor)
 
 // Queue API
 authorizedRouter.get("/api/queues", queueController.getAllQueue);
+authorizedRouter.get("/api/queues/:queueId", queueController.getDetailQueue);
+authorizedRouter.put("/api/queues/:queueId", queueController.updateQueueStatus);
+authorizedRouter.delete("/api/queues/:queueId", queueController.deleteQueue);
 
 export { authorizedRouter };

@@ -1,4 +1,5 @@
 import { prismaClient } from "../application/db.js";
+import { ResponseError } from "../error/response-error.js";
 import { getQueueValidation } from "../validation/queue-validation.js";
 import { validate } from "../validation/validation.js";
 
@@ -71,6 +72,74 @@ const getAllQueue = async (request) => {
   };
 };
 
+const getDetailQueue = async (queueId) => {
+  const queue = await prismaClient.queue.findUnique({
+    where: {
+      id: queueId,
+    },
+    include: {
+      user: true,
+      doctor: true,
+    },
+  });
+
+  if(!queue) {
+    throw new ResponseError(404, "Antrian tidak ditemukan")
+  }
+  return queue;
+}
+
+const updateQueueStatus = async (queueId, status) => {
+  const queue = await prismaClient.queue.findUnique({
+    where: {
+      id: queueId,
+    },
+  });
+
+  if (!queue) {
+    throw new ResponseError(404, "Antrian tidak ditemukan");
+  }
+
+  const validTransitions = {
+    MENUNGGU: ["DIPERIKSA", "TERLEWAT"],
+    DIPERIKSA: ["SELESAI"],
+  };
+
+  if (!validTransitions[queue.status]?.includes(status)) {
+    throw new ResponseError(404, "Status tidak valid untuk diubah");
+  }
+
+  return prismaClient.queue.update({
+    where: {
+      id: queueId,
+    },
+    data: {
+      status: status,
+    },
+  });
+}
+
+const deleteQueue = async (queueId) => {
+  const queue = await prismaClient.queue.findUnique({
+    where: {
+      id: queueId,
+    },
+  });
+
+  if (!queue) {
+    throw new ResponseError(404, "Antrian tidak ditemukan");
+  }
+
+  return prismaClient.queue.delete({
+    where: {
+      id: queueId,
+    },
+  });
+};
+
 export default {
   getAllQueue,
+  getDetailQueue,
+  updateQueueStatus,
+  deleteQueue,
 };
