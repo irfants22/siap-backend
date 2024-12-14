@@ -37,7 +37,8 @@ model Queue {
   id         String   @id @default(cuid())
   queue      String   @db.VarChar(100)
   status     Status   @default(MENUNGGU)
-  viewed     Boolean  @default(false)
+  isViewed   Boolean  @default(false)
+  isDeleted  Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -87,6 +88,7 @@ enum Status {
   DIPERIKSA
   SELESAI
   TERLEWAT
+  DIBATALKAN
 }
 
 enum Gender {

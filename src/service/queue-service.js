@@ -44,6 +44,7 @@ const getAllQueue = async (request) => {
   const queues = await prismaClient.queue.findMany({
     where: {
       AND: [...filters],
+      isDeleted: false,
     },
     skip: offset,
     take: limitNumber,
@@ -59,6 +60,7 @@ const getAllQueue = async (request) => {
   const totalQueues = await prismaClient.queue.count({
     where: {
       AND: [...filters],
+      isDeleted: false,
     },
   });
 
@@ -83,11 +85,93 @@ const getDetailQueue = async (queueId) => {
     },
   });
 
-  if(!queue) {
-    throw new ResponseError(404, "Antrian tidak ditemukan")
+  if (!queue) {
+    throw new ResponseError(404, "Antrian tidak ditemukan");
   }
   return queue;
-}
+};
+
+const createQueue = async (userId, doctorId) => {
+  const user = await prismaClient.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new ResponseError(404, "Pengguna tidak ditemukan");
+  }
+
+  const doctor = await prismaClient.doctor.findUnique({
+    where: {
+      id: doctorId,
+    },
+    include: {
+      polyclinic: true,
+    },
+  });
+
+  if (!doctor) {
+    throw new ResponseError(404, "Dokter tidak ditemukan");
+  }
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const queueCountToday = await prismaClient.queue.count({
+    where: {
+      doctor_id: doctorId,
+      created_at: {
+        gte: todayStart,
+        lte: todayEnd,
+      },
+    },
+  });
+
+  if (queueCountToday >= 30) {
+    throw new ResponseError(400, "Batas antrian sudah tercapai");
+  }
+
+  const polyclinicCode = doctor.polyclinic.name.slice(0, 2).toUpperCase();
+
+  const lastQueueToday = await prismaClient.queue.findMany({
+    where: {
+      doctor_id: doctorId,
+      created_at: {
+        gte: todayStart,
+        lt: todayEnd,
+      },
+    },
+    orderBy: { created_at: "desc" },
+    take: 1,
+  });
+
+  const lastNumber =
+    lastQueueToday.length > 0
+      ? parseInt(lastQueueToday[0].queue.split("-")[1], 10)
+      : 0;
+
+  const newQueueNumber = `${polyclinicCode}-${String(lastNumber + 1).padStart(
+    3,
+    "0"
+  )}`;
+
+  const newQueue = await prismaClient.queue.create({
+    data: {
+      user_id: userId,
+      doctor_id: doctorId,
+      queue: newQueueNumber,
+      status: "MENUNGGU",
+      isViewed: false,
+      isDeleted: false,
+    },
+  });
+
+  return newQueue;
+};
 
 const updateQueueStatus = async (queueId, status) => {
   const queue = await prismaClient.queue.findUnique({
@@ -100,12 +184,12 @@ const updateQueueStatus = async (queueId, status) => {
     throw new ResponseError(404, "Antrian tidak ditemukan");
   }
 
-  const validTransitions = {
-    MENUNGGU: ["DIPERIKSA", "TERLEWAT"],
+  const validStatuses = {
+    MENUNGGU: ["DIPERIKSA", "TERLEWAT", "DIBATALKAN"],
     DIPERIKSA: ["SELESAI"],
   };
 
-  if (!validTransitions[queue.status]?.includes(status)) {
+  if (!validStatuses[queue.status]?.includes(status)) {
     throw new ResponseError(404, "Status tidak valid untuk diubah");
   }
 
@@ -117,9 +201,9 @@ const updateQueueStatus = async (queueId, status) => {
       status: status,
     },
   });
-}
+};
 
-const deleteQueue = async (queueId) => {
+const deleteQueue = async (queueId, destroy) => {
   const queue = await prismaClient.queue.findUnique({
     where: {
       id: queueId,
@@ -130,16 +214,28 @@ const deleteQueue = async (queueId) => {
     throw new ResponseError(404, "Antrian tidak ditemukan");
   }
 
-  return prismaClient.queue.delete({
-    where: {
-      id: queueId,
-    },
-  });
+  if (destroy) {
+    return prismaClient.queue.delete({
+      where: {
+        id: queueId,
+      },
+    });
+  } else {
+    return prismaClient.queue.update({
+      where: {
+        id: queueId,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+  }
 };
 
 export default {
   getAllQueue,
   getDetailQueue,
+  createQueue,
   updateQueueStatus,
   deleteQueue,
 };

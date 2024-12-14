@@ -9,7 +9,7 @@ const authorizedRouter = Router();
 authorizedRouter.use(isAuthorized);
 
 // User API (patient)
-authorizedRouter.get("/api/users/current", userController.getUser);
+authorizedRouter.get("/api/users/me", userController.getUser);
 authorizedRouter.delete("/api/users/logout", userController.logoutUser);
 
 // User API (admin)
@@ -28,6 +28,7 @@ authorizedRouter.delete("/api/doctors/:doctorId", doctorController.deleteDoctor)
 // Queue API
 authorizedRouter.get("/api/queues", queueController.getAllQueue);
 authorizedRouter.get("/api/queues/:queueId", queueController.getDetailQueue);
+authorizedRouter.post("/api/queues", queueController.createQueue);
 authorizedRouter.put("/api/queues/:queueId", queueController.updateQueueStatus);
 authorizedRouter.delete("/api/queues/:queueId", queueController.deleteQueue);
 
