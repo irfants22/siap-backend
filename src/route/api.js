@@ -8,12 +8,10 @@ import queueController from "../controller/queue-controller.js";
 const authorizedRouter = Router();
 authorizedRouter.use(isAuthorized);
 
-// User API (patient)
-authorizedRouter.get("/api/users/me", userController.getUser);
+// User API
+authorizedRouter.get("/api/users", userController.getAllUser);
+authorizedRouter.get("/api/users/me", userController.getUserProfile);
 authorizedRouter.delete("/api/users/logout", userController.logoutUser);
-
-// User API (admin)
-authorizedRouter.get("/api/users",  userController.getAllUser);
 authorizedRouter.delete("/api/users/:userId", userController.deleteUser);
 
 // Polyclinic API
@@ -27,8 +25,9 @@ authorizedRouter.delete("/api/doctors/:doctorId", doctorController.deleteDoctor)
 
 // Queue API
 authorizedRouter.get("/api/queues", queueController.getAllQueue);
-authorizedRouter.get("/api/queues/:queueId", queueController.getDetailQueue);
 authorizedRouter.post("/api/queues", queueController.createQueue);
+authorizedRouter.get("/api/queues/me", queueController.getMyQueue);
+authorizedRouter.get("/api/queues/:queueId", queueController.getDetailQueue);
 authorizedRouter.put("/api/queues/:queueId", queueController.updateQueueStatus);
 authorizedRouter.delete("/api/queues/:queueId", queueController.deleteQueue);
 

@@ -22,10 +22,10 @@ const login = async (req, res, next) => {
   }
 };
 
-const getUser = async (req, res, next) => {
+const getUserProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const result = await userService.getUser(userId);
+    const result = await userService.getUserProfile(userId);
     res.status(200).json({
       data: result,
     });
@@ -77,7 +77,7 @@ const deleteUser = async (req, res, next) => {
 export default {
   register,
   login,
-  getUser,
+  getUserProfile,
   logoutUser,
   getAllUser,
   deleteUser,

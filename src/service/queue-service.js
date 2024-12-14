@@ -240,10 +240,30 @@ const deleteQueue = async (queueId, destroy) => {
   }
 };
 
+const getMyQueue = async (userId) => {
+  const queue = await prismaClient.queue.findMany({
+    where: {
+      user_id: userId,
+      isDeleted: false,
+    },
+    include: {
+      doctor: true,
+      user: true,
+    },
+  });
+
+  if (!queue) {
+    throw new ResponseError(404, "Antrian tidak ditemukan");
+  }
+
+  return queue;
+};
+
 export default {
   getAllQueue,
   getDetailQueue,
   createQueue,
   updateQueueStatus,
   deleteQueue,
+  getMyQueue,
 };

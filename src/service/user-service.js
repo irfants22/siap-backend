@@ -80,7 +80,7 @@ const login = async (request) => {
   });
 };
 
-const getUser = async (userId) => {
+const getUserProfile = async (userId) => {
   const user = await prismaClient.user.findUnique({
     where: {
       id: userId,
@@ -196,7 +196,7 @@ const deleteUser = async (userId) => {
 export default {
   register,
   login,
-  getUser,
+  getUserProfile,
   logoutUser,
   getAllUser,
   deleteUser,

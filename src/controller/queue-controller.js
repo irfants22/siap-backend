@@ -68,10 +68,23 @@ const deleteQueue = async (req, res, next) => {
   }
 };
 
+const getMyQueue = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const result = await queueService.getMyQueue(userId);
+    res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getAllQueue,
   getDetailQueue,
   createQueue,
   updateQueueStatus,
   deleteQueue,
+  getMyQueue,
 };
