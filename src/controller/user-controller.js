@@ -24,8 +24,8 @@ const login = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
   try {
-    const email = req.user.email;
-    const result = await userService.getUser(email);
+    const userId = req.user.id;
+    const result = await userService.getUser(userId);
     res.status(200).json({
       data: result,
     });
@@ -36,8 +36,8 @@ const getUser = async (req, res, next) => {
 
 const logoutUser = async (req, res, next) => {
   try {
-    const email = req.user.email;
-    await userService.logoutUser(email);
+    const userId = req.user.id;
+    await userService.logoutUser(userId);
     res.status(200).json({
       status: "OK",
     });
@@ -52,6 +52,8 @@ const getAllUser = async (req, res, next) => {
       query: req.query.query,
       page: req.query.page,
       limit: req.query.limit,
+      sortBy: req.query.sortBy,
+      sortOrder: req.query.sortOrder,
     };
     const result = await userService.getAllUser(request);
     res.status(200).json(result);

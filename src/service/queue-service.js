@@ -1,6 +1,10 @@
 import { prismaClient } from "../application/db.js";
 import { ResponseError } from "../error/response-error.js";
-import { getQueueValidation } from "../validation/queue-validation.js";
+import {
+  deleteQueueValidation,
+  getQueueStatusValidation,
+  getQueueValidation,
+} from "../validation/queue-validation.js";
 import { validate } from "../validation/validation.js";
 
 const getAllQueue = async (request) => {
@@ -174,6 +178,8 @@ const createQueue = async (userId, doctorId) => {
 };
 
 const updateQueueStatus = async (queueId, status) => {
+  status = validate(getQueueStatusValidation, status);
+
   const queue = await prismaClient.queue.findUnique({
     where: {
       id: queueId,
@@ -204,6 +210,8 @@ const updateQueueStatus = async (queueId, status) => {
 };
 
 const deleteQueue = async (queueId, destroy) => {
+  destroy = validate(deleteQueueValidation, destroy);
+
   const queue = await prismaClient.queue.findUnique({
     where: {
       id: queueId,

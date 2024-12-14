@@ -2,7 +2,6 @@ import { prismaClient } from "../application/db.js";
 import { ResponseError } from "../error/response-error.js";
 import {
   getAllUserValidation,
-  getUserValidation,
   loginUserValidation,
   registerUserValidation,
 } from "../validation/user-validation.js";
@@ -10,8 +9,8 @@ import { validate } from "../validation/validation.js";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 
-const register = async (req) => {
-  const user = validate(registerUserValidation, req);
+const register = async (request) => {
+  const user = validate(registerUserValidation, request);
 
   const isUserExist = await prismaClient.user.count({
     where: {
@@ -40,8 +39,8 @@ const register = async (req) => {
   });
 };
 
-const login = async (req) => {
-  const loginRequest = validate(loginUserValidation, req);
+const login = async (request) => {
+  const loginRequest = validate(loginUserValidation, request);
 
   const user = await prismaClient.user.findUnique({
     where: {
@@ -81,12 +80,10 @@ const login = async (req) => {
   });
 };
 
-const getUser = async (email) => {
-  email = validate(getUserValidation, email);
-
+const getUser = async (userId) => {
   const user = await prismaClient.user.findUnique({
     where: {
-      email: email,
+      id: userId,
     },
     select: {
       name: true,
@@ -106,12 +103,10 @@ const getUser = async (email) => {
   return user;
 };
 
-const logoutUser = async (email) => {
-  email = validate(getUserValidation, email);
-
+const logoutUser = async (userId) => {
   const user = await prismaClient.user.findUnique({
     where: {
-      email: email,
+      id: userId,
     },
   });
 
@@ -121,7 +116,7 @@ const logoutUser = async (email) => {
 
   return prismaClient.user.update({
     where: {
-      email: email,
+      id: userId,
     },
     data: {
       token: null,
@@ -136,6 +131,8 @@ const getAllUser = async (request) => {
   const limitNumber = request.limit || 10;
   const offset = (pageNumber - 1) * limitNumber;
   const query = request.query;
+  const sortBy = request.sortBy || "name";
+  const sortOrder = request.sortOrder || "asc";
 
   const filters = query
     ? {
@@ -152,9 +149,15 @@ const getAllUser = async (request) => {
     where: filters,
     skip: offset,
     take: limitNumber,
-    orderBy: { name: "asc" },
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
     include: {
-      queues: true,
+      queues: {
+        where: {
+          isDeleted: false,
+        },
+      },
     },
   });
 

@@ -10,6 +10,8 @@ const getAllDoctor = async (request) => {
   const limitNumber = request.limit || 10;
   const offset = (pageNumber - 1) * limitNumber;
   const query = request.query;
+  const sortBy = request.sortBy || "name";
+  const sortOrder = request.sortOrder || "asc";
 
   const filters = query
     ? {
@@ -25,10 +27,16 @@ const getAllDoctor = async (request) => {
     where: filters,
     skip: offset,
     take: limitNumber,
-    orderBy: { name: "asc" },
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
     include: {
       polyclinic: true,
-      queues: true,
+      queues: {
+        where: {
+          isDeleted: false,
+        },
+      },
     },
   });
 

@@ -18,4 +18,8 @@ const getQueueValidation = Joi.object({
   sortOrder: Joi.string().optional(),
 });
 
-export { getQueueValidation };
+const getQueueStatusValidation = Joi.string().optional();
+
+const deleteQueueValidation = Joi.boolean().optional();
+
+export { getQueueValidation, getQueueStatusValidation, deleteQueueValidation };

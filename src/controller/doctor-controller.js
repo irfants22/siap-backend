@@ -6,6 +6,8 @@ const getAllDoctor = async (req, res, next) => {
       query: req.query.query,
       page: req.query.page,
       limit: req.query.limit,
+      sortBy: req.query.sortBy,
+      sortOrder: req.query.sortOrder,
     };
     const result = await doctorService.getAllDoctor(request);
     res.status(200).json(result);
