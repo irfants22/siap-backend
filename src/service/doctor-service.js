@@ -105,15 +105,8 @@ const createDoctor = async (request, image, polyclinic) => {
 
   const newDoctor = await prismaClient.doctor.create({
     data: {
-      name: request.name,
-      email: request.email,
-      phone: request.phone,
-      gender: request.gender,
-      address: request.address,
+      ...request,
       image: imageUrl,
-      schedule: request.schedule,
-      social_media: request.social_media,
-      description: request.description,
       polyclinic_id: polyclinicId.id,
     },
   });
@@ -140,12 +133,10 @@ const updateDoctor = async (doctorId, request, image, polyclinic) => {
       const publicId = existingDoctor.image.split("/").pop().split(".")[0];
       await cloudinary.uploader.destroy(`doctors/${publicId}`);
     }
-
     const uploadResponse = await cloudinary.uploader.upload(image.path, {
       folder: "doctors",
     });
     imageUrl = uploadResponse.secure_url;
-
     await fs.promises.unlink(image.path);
   }
 
@@ -183,11 +174,9 @@ const deleteDoctor = async (doctorId) => {
   }
 
   if (doctor.image) {
-    const publicId = doctor.image.split("/").pop().split(".")[0]; 
-    if (publicId) {
-      await cloudinary.uploader.destroy(`doctors/${publicId}`);
-    }
-    }
+    const publicId = doctor.image.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(`doctors/${publicId}`);
+  }
   return prismaClient.doctor.delete({
     where: {
       id: doctorId,

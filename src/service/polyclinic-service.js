@@ -2,10 +2,10 @@ import fs from "fs";
 import cloudinary from "../application/cloudinary.js";
 import { prismaClient } from "../application/db.js";
 import { ResponseError } from "../error/response-error.js";
-import { 
-  createPolyclinicValidation, 
+import {
+  createPolyclinicValidation,
   getPolyclinicValidation,
-  updatePolyclinicValidation 
+  updatePolyclinicValidation,
 } from "../validation/polyclinic-validation.js";
 import { validate } from "../validation/validation.js";
 
@@ -64,13 +64,14 @@ const createPolyclinic = async (request, image) => {
   const newPolyclinic = await prismaClient.polyclinic.create({
     data: {
       name: request.name,
-      image: imageUrl
+      image: imageUrl,
     },
   });
-  return newPolyclinic;
-}
 
-const updatePolyclinic = async (polyclinicId, request, image, ) => {
+  return newPolyclinic;
+};
+
+const updatePolyclinic = async (polyclinicId, request, image) => {
   request = validate(updatePolyclinicValidation, request);
 
   const existingPolyclinic = await prismaClient.polyclinic.findUnique({
@@ -89,12 +90,10 @@ const updatePolyclinic = async (polyclinicId, request, image, ) => {
       const publicId = existingPolyclinic.image.split("/").pop().split(".")[0];
       await cloudinary.uploader.destroy(`polyclinics/${publicId}`);
     }
-
     const uploadResponse = await cloudinary.uploader.upload(image.path, {
       folder: "polyclinics",
     });
     imageUrl = uploadResponse.secure_url;
-
     await fs.promises.unlink(image.path);
   }
 
@@ -102,7 +101,10 @@ const updatePolyclinic = async (polyclinicId, request, image, ) => {
     where: {
       id: polyclinicId,
     },
-    data: { image: imageUrl, ...request },
+    data: {
+      name: request.name,
+      image: imageUrl,
+    },
   });
 
   return updatedPolyclinic;
@@ -120,10 +122,8 @@ const deletePolyclinic = async (polyclinicId) => {
   }
 
   if (polyclinic.image) {
-    const publicId = polyclinic.image.split("/").pop().split(".")[0]; 
-    if (publicId) {
-      await cloudinary.uploader.destroy(`polyclinics/${publicId}`);
-    }
+    const publicId = polyclinic.image.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(`polyclinics/${publicId}`);
   }
 
   return prismaClient.polyclinic.delete({
