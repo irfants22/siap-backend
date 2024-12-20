@@ -4,6 +4,7 @@ import userController from "../controller/user-controller.js";
 import polyclinicController from "../controller/polyclinic-controller.js";
 import doctorController from "../controller/doctor-controller.js";
 import queueController from "../controller/queue-controller.js";
+import upload from "../middleware/upload.js";
 
 const authorizedRouter = Router();
 authorizedRouter.use(isAuthorized);
@@ -21,6 +22,8 @@ authorizedRouter.delete("/api/polyclinics/:polyclinicId", polyclinicController.d
 // Doctor API
 authorizedRouter.get("/api/doctors", doctorController.getAllDoctor);
 authorizedRouter.get("/api/doctors/:doctorId", doctorController.getDetailDoctor);
+authorizedRouter.post("/api/doctors", upload.single("image"), doctorController.createDoctor);
+authorizedRouter.put("/api/doctors/:doctorId", upload.single("image"), doctorController.updateDoctor);
 authorizedRouter.delete("/api/doctors/:doctorId", doctorController.deleteDoctor);
 
 // Queue API

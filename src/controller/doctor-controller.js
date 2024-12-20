@@ -28,6 +28,58 @@ const getDetailDoctor = async (req, res, next) => {
   }
 };
 
+const createDoctor = async (req, res, next) => {
+  try {
+    const request = {
+      name: req.body.name,
+      phone: req.body.phone,
+      email: req.body.email,
+      gender: req.body.gender,
+      address: req.body.address,
+      social_media: req.body.social_media,
+      description: req.body.description,
+      schedule: req.body.schedule,
+    };
+    const image = req.file;
+    const polyclinic = req.body.polyclinic;
+    const result = await doctorService.createDoctor(request, image, polyclinic);
+    res.status(201).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateDoctor = async (req, res, next) => {
+  try {
+    const doctorId = req.params.doctorId;
+    const request = {
+      name: req.body.name,
+      phone: req.body.phone,
+      email: req.body.email,
+      gender: req.body.gender,
+      address: req.body.address,
+      social_media: req.body.social_media,
+      description: req.body.description,
+      schedule: req.body.schedule,
+    };
+    const image = req.file;
+    const polyclinic = req.body.polyclinic;
+    const result = await doctorService.updateDoctor(
+      doctorId,
+      request,
+      image,
+      polyclinic
+    );
+    res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteDoctor = async (req, res, next) => {
   try {
     const doctorId = req.params.doctorId;
@@ -43,5 +95,7 @@ const deleteDoctor = async (req, res, next) => {
 export default {
   getAllDoctor,
   getDetailDoctor,
+  createDoctor,
+  updateDoctor,
   deleteDoctor,
 };

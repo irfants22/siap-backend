@@ -1,6 +1,12 @@
+import fs from "fs";
+import cloudinary from "../application/cloudinary.js";
 import { prismaClient } from "../application/db.js";
 import { ResponseError } from "../error/response-error.js";
-import { getDoctorValidation } from "../validation/doctor-validation.js";
+import {
+  createDoctorValidation,
+  getDoctorValidation,
+  updateDoctorValidation,
+} from "../validation/doctor-validation.js";
 import { validate } from "../validation/validation.js";
 
 const getAllDoctor = async (request) => {
@@ -72,6 +78,99 @@ const getDetailDoctor = async (doctorId) => {
   return doctor;
 };
 
+const createDoctor = async (request, image, polyclinic) => {
+  request = validate(createDoctorValidation, request);
+
+  if (!polyclinic) {
+    throw new ResponseError(400, "polyclinic is required");
+  }
+
+  let imageUrl = null;
+  if (image) {
+    const uploadResponse = await cloudinary.uploader.upload(image.path, {
+      folder: "doctors",
+    });
+    imageUrl = uploadResponse.secure_url;
+    await fs.promises.unlink(image.path);
+  }
+
+  const polyclinicId = await prismaClient.polyclinic.findFirst({
+    where: {
+      name: polyclinic,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const newDoctor = await prismaClient.doctor.create({
+    data: {
+      name: request.name,
+      email: request.email,
+      phone: request.phone,
+      gender: request.gender,
+      address: request.address,
+      image: imageUrl,
+      schedule: request.schedule,
+      social_media: request.social_media,
+      description: request.description,
+      polyclinic_id: polyclinicId.id,
+    },
+  });
+
+  return newDoctor;
+};
+
+const updateDoctor = async (doctorId, request, image, polyclinic) => {
+  request = validate(updateDoctorValidation, request);
+
+  const existingDoctor = await prismaClient.doctor.findUnique({
+    where: {
+      id: doctorId,
+    },
+  });
+
+  if (!existingDoctor) {
+    throw new ResponseError(404, "Dokter tidak ditemukan");
+  }
+
+  let imageUrl = existingDoctor.image;
+  if (image) {
+    if (existingDoctor.image) {
+      const publicId = existingDoctor.image.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`doctors/${publicId}`);
+    }
+
+    const uploadResponse = await cloudinary.uploader.upload(image.path, {
+      folder: "doctors",
+    });
+    imageUrl = uploadResponse.secure_url;
+
+    await fs.promises.unlink(image.path);
+  }
+
+  let polyclinicId = existingDoctor.polyclinic_id;
+  if (polyclinic) {
+    const foundPolyclinic = await prismaClient.polyclinic.findFirst({
+      where: { name: polyclinic },
+      select: { id: true },
+    });
+    if (!foundPolyclinic) {
+      throw new ResponseError(404, "Poliklinik tidak ditemukan");
+    }
+    polyclinicId = foundPolyclinic.id;
+  }
+
+  const updatedDoctor = await prismaClient.doctor.update({
+    where: {
+      id: doctorId,
+    },
+    data: { image: imageUrl, polyclinic_id: polyclinicId, ...request },
+  });
+
+  return updatedDoctor;
+};
+
 const deleteDoctor = async (doctorId) => {
   const doctor = await prismaClient.doctor.findUnique({
     where: {
@@ -93,5 +192,7 @@ const deleteDoctor = async (doctorId) => {
 export default {
   getAllDoctor,
   getDetailDoctor,
+  createDoctor,
+  updateDoctor,
   deleteDoctor,
 };
