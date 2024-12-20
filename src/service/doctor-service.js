@@ -182,6 +182,12 @@ const deleteDoctor = async (doctorId) => {
     throw new ResponseError(404, "Dokter tidak ditemukan");
   }
 
+  if (doctor.image) {
+    const publicId = doctor.image.split("/").pop().split(".")[0]; 
+    if (publicId) {
+      await cloudinary.uploader.destroy(`doctors/${publicId}`);
+    }
+    }
   return prismaClient.doctor.delete({
     where: {
       id: doctorId,

@@ -1,6 +1,12 @@
+import fs from "fs";
+import cloudinary from "../application/cloudinary.js";
 import { prismaClient } from "../application/db.js";
 import { ResponseError } from "../error/response-error.js";
-import { getPolyclinicValidation } from "../validation/polyclinic-validation.js";
+import { 
+  createPolyclinicValidation, 
+  getPolyclinicValidation,
+  updatePolyclinicValidation 
+} from "../validation/polyclinic-validation.js";
 import { validate } from "../validation/validation.js";
 
 const getAllPolyclinic = async (request) => {
@@ -43,6 +49,65 @@ const getAllPolyclinic = async (request) => {
   };
 };
 
+const createPolyclinic = async (request, image) => {
+  request = validate(createPolyclinicValidation, request);
+
+  let imageUrl = null;
+  if (image) {
+    const uploadResponse = await cloudinary.uploader.upload(image.path, {
+      folder: "polyclinics",
+    });
+    imageUrl = uploadResponse.secure_url;
+    await fs.promises.unlink(image.path);
+  }
+
+  const newPolyclinic = await prismaClient.polyclinic.create({
+    data: {
+      name: request.name,
+      image: imageUrl
+    },
+  });
+  return newPolyclinic;
+}
+
+const updatePolyclinic = async (polyclinicId, request, image, ) => {
+  request = validate(updatePolyclinicValidation, request);
+
+  const existingPolyclinic = await prismaClient.polyclinic.findUnique({
+    where: {
+      id: polyclinicId,
+    },
+  });
+
+  if (!existingPolyclinic) {
+    throw new ResponseError(404, "Poliklinik tidak ditemukan");
+  }
+
+  let imageUrl = existingPolyclinic.image;
+  if (image) {
+    if (existingPolyclinic.image) {
+      const publicId = existingPolyclinic.image.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`polyclinics/${publicId}`);
+    }
+
+    const uploadResponse = await cloudinary.uploader.upload(image.path, {
+      folder: "polyclinics",
+    });
+    imageUrl = uploadResponse.secure_url;
+
+    await fs.promises.unlink(image.path);
+  }
+
+  const updatedPolyclinic = await prismaClient.polyclinic.update({
+    where: {
+      id: polyclinicId,
+    },
+    data: { image: imageUrl, ...request },
+  });
+
+  return updatedPolyclinic;
+};
+
 const deletePolyclinic = async (polyclinicId) => {
   const polyclinic = await prismaClient.polyclinic.findUnique({
     where: {
@@ -54,6 +119,13 @@ const deletePolyclinic = async (polyclinicId) => {
     throw new ResponseError(404, "Poliklinik tidak ditemukan");
   }
 
+  if (polyclinic.image) {
+    const publicId = polyclinic.image.split("/").pop().split(".")[0]; 
+    if (publicId) {
+      await cloudinary.uploader.destroy(`polyclinics/${publicId}`);
+    }
+  }
+
   return prismaClient.polyclinic.delete({
     where: {
       id: polyclinicId,
@@ -63,5 +135,7 @@ const deletePolyclinic = async (polyclinicId) => {
 
 export default {
   getAllPolyclinic,
+  createPolyclinic,
+  updatePolyclinic,
   deletePolyclinic,
 };

@@ -8,4 +8,16 @@ const getPolyclinicValidation = Joi.object({
   sortOrder: Joi.string().optional(),
 });
 
-export { getPolyclinicValidation };
+const createPolyclinicValidation = Joi.object({
+  name: Joi.string().max(100).required(),
+});
+
+const updatePolyclinicValidation = Joi.object({
+  name: Joi.string().max(100).optional(),
+});
+
+export { 
+  getPolyclinicValidation, 
+  createPolyclinicValidation,
+  updatePolyclinicValidation, 
+};

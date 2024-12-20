@@ -18,6 +18,8 @@ authorizedRouter.delete("/api/users/:userId", userController.deleteUser);
 // Polyclinic API
 authorizedRouter.get("/api/polyclinics", polyclinicController.getAllPolyclinic);
 authorizedRouter.delete("/api/polyclinics/:polyclinicId", polyclinicController.deletePolyclinic);
+authorizedRouter.post("/api/polyclinics", upload.single("image"), polyclinicController.createPolyclinic);
+authorizedRouter.put("/api/polyclinics/:polyclinicId", upload.single("image"), polyclinicController.updatePolyclinic);
 
 // Doctor API
 authorizedRouter.get("/api/doctors", doctorController.getAllDoctor);

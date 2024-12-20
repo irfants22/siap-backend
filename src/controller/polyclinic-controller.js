@@ -16,6 +16,41 @@ const getAllPolyclinic = async (req, res, next) => {
   }
 };
 
+const createPolyclinic = async (req, res, next) => {
+  try {
+    const request =  {
+      name: req.body.name,
+    };
+    const image = req.file;
+    const result = await polyclinicService.createPolyclinic(request, image);
+    res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error)
+  }
+};
+
+const updatePolyclinic = async (req, res, next) => {
+  try {
+    const polyclinicId = req.params.polyclinicId;
+    const request = {
+      name: req.body.name,
+    };
+    const image = req.file;
+    const result = await polyclinicService.updatePolyclinic(
+      polyclinicId,
+      request,
+      image,
+    );
+    res.status(200).json({
+      data: result,
+    })
+  } catch (error) {
+    next(error);
+  }
+}
+
 const deletePolyclinic = async (req, res, next) => {
   try {
     const polyclinicId = req.params.polyclinicId;
@@ -30,5 +65,7 @@ const deletePolyclinic = async (req, res, next) => {
 
 export default {
   getAllPolyclinic,
+  createPolyclinic,
+  updatePolyclinic,
   deletePolyclinic,
 };
