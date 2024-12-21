@@ -34,6 +34,27 @@ const getUserProfile = async (req, res, next) => {
   }
 };
 
+const updateUserProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const image = req.file;
+    const request = {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      nik: req.body.nik,
+      gender: req.body.gender,
+      address: req.body.address,
+    };
+    const result = await userService.updateUserProfile(userId, request, image);
+    res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const logoutUser = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -78,6 +99,7 @@ export default {
   register,
   login,
   getUserProfile,
+  updateUserProfile,
   logoutUser,
   getAllUser,
   deleteUser,

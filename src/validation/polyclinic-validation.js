@@ -16,8 +16,8 @@ const updatePolyclinicValidation = Joi.object({
   name: Joi.string().max(100).optional(),
 });
 
-export { 
-  getPolyclinicValidation, 
+export {
+  getPolyclinicValidation,
   createPolyclinicValidation,
-  updatePolyclinicValidation, 
+  updatePolyclinicValidation,
 };

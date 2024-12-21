@@ -23,4 +23,18 @@ const getAllUserValidation = Joi.object({
   sortOrder: Joi.string().optional(),
 });
 
-export { registerUserValidation, loginUserValidation, getAllUserValidation };
+const updateUserValidation = Joi.object({
+  name: Joi.string().max(100).optional(),
+  email: Joi.string().max(100).email().optional(),
+  phone: Joi.string().max(20).optional(),
+  nik: Joi.string().max(20).optional(),
+  gender: Joi.string().valid("LAKI_LAKI", "PEREMPUAN").optional(),
+  address: Joi.string().optional(),
+});
+
+export {
+  registerUserValidation,
+  loginUserValidation,
+  getAllUserValidation,
+  updateUserValidation,
+};

@@ -18,7 +18,7 @@ const getAllPolyclinic = async (req, res, next) => {
 
 const createPolyclinic = async (req, res, next) => {
   try {
-    const request =  {
+    const request = {
       name: req.body.name,
     };
     const image = req.file;
@@ -27,7 +27,7 @@ const createPolyclinic = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
@@ -41,15 +41,15 @@ const updatePolyclinic = async (req, res, next) => {
     const result = await polyclinicService.updatePolyclinic(
       polyclinicId,
       request,
-      image,
+      image
     );
     res.status(200).json({
       data: result,
-    })
+    });
   } catch (error) {
     next(error);
   }
-}
+};
 
 const deletePolyclinic = async (req, res, next) => {
   try {

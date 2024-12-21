@@ -12,6 +12,7 @@ authorizedRouter.use(isAuthorized);
 // User API
 authorizedRouter.get("/api/users", userController.getAllUser);
 authorizedRouter.get("/api/users/me", userController.getUserProfile);
+authorizedRouter.put("/api/users/me", upload.single("image"), userController.updateUserProfile);
 authorizedRouter.delete("/api/users/logout", userController.logoutUser);
 authorizedRouter.delete("/api/users/:userId", userController.deleteUser);
 

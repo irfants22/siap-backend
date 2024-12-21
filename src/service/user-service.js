@@ -1,9 +1,12 @@
+import fs from "fs";
+import cloudinary from "../application/cloudinary.js";
 import { prismaClient } from "../application/db.js";
 import { ResponseError } from "../error/response-error.js";
 import {
   getAllUserValidation,
   loginUserValidation,
   registerUserValidation,
+  updateUserValidation,
 } from "../validation/user-validation.js";
 import { validate } from "../validation/validation.js";
 import bcrypt from "bcrypt";
@@ -103,6 +106,45 @@ const getUserProfile = async (userId) => {
   return user;
 };
 
+const updateUserProfile = async (userId, request, image) => {
+  request = validate(updateUserValidation, request);
+
+  const existingUser = await prismaClient.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!existingUser) {
+    throw new ResponseError(404, "Pengguna tidak ditemukan");
+  }
+
+  let imageUrl = existingUser.image;
+  if (image) {
+    if (existingUser.image) {
+      const publicId = existingUser.image.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`users/${publicId}`);
+    }
+    const uploadResponse = await cloudinary.uploader.upload(image.path, {
+      folder: "users",
+    });
+    imageUrl = uploadResponse.secure_url;
+    await fs.promises.unlink(image.path);
+  }
+
+  const updatedUser = await prismaClient.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      ...request,
+      image: imageUrl,
+    },
+  });
+
+  return updatedUser;
+};
+
 const logoutUser = async (userId) => {
   const user = await prismaClient.user.findUnique({
     where: {
@@ -197,6 +239,7 @@ export default {
   register,
   login,
   getUserProfile,
+  updateUserProfile,
   logoutUser,
   getAllUser,
   deleteUser,
